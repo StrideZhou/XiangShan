@@ -515,8 +515,8 @@ class BackendMemIO(implicit p: Parameters, params: BackendParams) extends XSBund
   val writebackLda = Vec(params.LduCnt, Flipped(DecoupledIO(new MemExuOutput)))
   val writebackSta = Vec(params.StaCnt, Flipped(DecoupledIO(new MemExuOutput)))
   val writebackStd = Vec(params.StdCnt, Flipped(DecoupledIO(new MemExuOutput)))
-  // 0: Hybrid load, 1: Hybrid store
-  val writebackHyu = Vec(params.HyuCnt, Flipped(Vec(2, DecoupledIO(new MemExuOutput))))
+  val writebackHyuLda = Vec(params.HyuCnt, Flipped(DecoupledIO(new MemExuOutput)))
+  val writebackHyuSta = Vec(params.HyuCnt, Flipped(DecoupledIO(new MemExuOutput)))
   val writebackVlda = Vec(params.VlduCnt, Flipped(DecoupledIO(new MemExuOutput(true))))
 
   val s3_delayed_load_error = Input(Vec(LoadPipelineWidth, Bool()))
@@ -559,7 +559,7 @@ class BackendMemIO(implicit p: Parameters, params: BackendParams) extends XSBund
 
   def issueUops = issueLda ++ issueSta ++ issueStd ++ issueHya ++ issueVldu
 
-  def writeback = writebackLda ++ writebackSta ++ writebackHyu.map(_(0)) ++ writebackStd ++ writebackVlda
+  def writeback = writebackLda ++ writebackSta ++ writebackHyuLda ++ writebackHyuSta ++ writebackStd ++ writebackVlda
 }
 
 class BackendIO(implicit p: Parameters, params: BackendParams) extends XSBundle {
