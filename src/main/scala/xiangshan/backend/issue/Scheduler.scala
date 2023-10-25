@@ -230,7 +230,11 @@ abstract class SchedulerImpBase(wrapper: Scheduler)(implicit params: SchdBlockPa
       og1Resp := io.fromDataPath(i)(j).og1resp
     }
     iq.io.finalIssueResp.foreach(_.zipWithIndex.foreach { case (finalIssueResp, j) =>
-      finalIssueResp := io.loadFinalIssueResp(i)(j)
+      if (io.loadFinalIssueResp(i).isDefinedAt(j)) {
+        finalIssueResp := io.loadFinalIssueResp(i)(j)
+      } else {
+        finalIssueResp := 0.U.asTypeOf(finalIssueResp)
+      }
     })
     iq.io.wbBusyTableRead := io.fromWbFuBusyTable.fuBusyTableRead(i)
     io.wbFuBusyTable(i) := iq.io.wbBusyTableWrite
@@ -307,7 +311,8 @@ class SchedulerMemImp(override val wrapper: Scheduler)(implicit params: SchdBloc
 
   hyuIQs.foreach {
     case imp: IssueQueueMemAddrImp =>
-      imp.io.memIO.get.feedbackIO <> io.fromMem.get.hyuFeedback
+      imp.io.memIO.get.feedbackIO.head := io.fromMem.get.hyuFeedback.head
+      imp.io.memIO.get.feedbackIO(1) := 0.U.asTypeOf(imp.io.memIO.get.feedbackIO(1))
       imp.io.memIO.get.checkWait.stIssuePtr := io.fromMem.get.stIssuePtr
       imp.io.memIO.get.checkWait.memWaitUpdateReq := io.fromMem.get.memWaitUpdateReq
     case _ =>
