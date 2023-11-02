@@ -566,7 +566,11 @@ class BackendMemIO(implicit p: Parameters, params: BackendParams) extends XSBund
 
   def issueUops = issueLda ++ issueSta ++ issueStd ++ issueHylda ++ issueHysta ++ issueVldu
 
-  def writeback = writebackLda ++ writebackSta ++ writebackHyuLda ++ writebackHyuSta ++ writebackStd ++ writebackVlda
+  def writeback =
+    Seq(writebackLda(0)) ++ Seq(writebackSta(0)) ++
+      writebackHyuLda ++ writebackHyuSta ++
+      Seq(writebackLda(1)) ++ writebackVlda ++
+      writebackStd
 }
 
 class BackendIO(implicit p: Parameters, params: BackendParams) extends XSBundle {
